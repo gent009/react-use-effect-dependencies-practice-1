@@ -1,22 +1,38 @@
-import { useState } from "react";
-import DataList from "./components/DataList.jsx";
-import SelectTypeForm from "./components/SelectTypeForm.jsx";
-import "./App.css";
+import React, { useState, useEffect } from "react";
 
-export default function App() {
-  const [dataType, setDataType] = useState("");
+const App = () => {
+  const [dataType, setDataType] = useState("people");
+  const [data, setData] = useState([]);
 
-  const [data, setData] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`https://swapi.dev/api/${dataType}/`);
+        const result = await response.json();
+        setData(result.results);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  console.log({ data });
-
-  // Write code here.
-  //
+    fetchData();
+  }, [dataType]);
 
   return (
     <div>
-      <SelectTypeForm setDataType={setDataType} />
-      {data && <DataList dataType={dataType} data={data.results} />}
+      <h1>Star Wars {dataType.charAt(0).toUpperCase() + dataType.slice(1)}</h1>
+      <div>
+        <button onClick={() => setDataType("people")}>People</button>
+        <button onClick={() => setDataType("planets")}>Planets</button>
+        <button onClick={() => setDataType("starships")}>Starships</button>
+      </div>
+      <ul>
+        {data.map((item, index) => (
+          <li key={index}>{item.name || item.title}</li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export default App;
